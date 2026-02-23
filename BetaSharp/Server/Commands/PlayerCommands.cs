@@ -1,5 +1,6 @@
 using BetaSharp.Entities;
 using BetaSharp.Items;
+using BetaSharp.Network.Packets.S2CPlay;
 using BetaSharp.Server.Internal;
 
 namespace BetaSharp.Server.Commands;
@@ -151,7 +152,7 @@ public static class PlayerCommands
             return;
         }
 
-        bool enable = true;
+        bool enable;
         if (args.Length > 0)
         {
             // Accept: on/off/1/0/true/false
@@ -172,10 +173,19 @@ public static class PlayerCommands
         }
         else
         {
-            //enable = !targetPlayer.IsFlying; // Toggle fly permission, not state
+            enable = !targetPlayer.IsFlying; // Toggle fly permission, not state
         }
 
-        targetPlayer.IsFlying = true;
+        targetPlayer.IsFlying = enable;
+
+        targetPlayer.networkHandler.sendPacket(
+            new PlayerAbilitiesS2CPacket(targetPlayer.CanFly, targetPlayer.IsFlying)
+        );
+
+        if (!enable)
+        {
+            targetPlayer.IsFlying = false; // If permission revoked, disable flight immediately
+        }
 
         output.SendMessage(enable
             ? "You can now fly! Double-jump to begin flying."

@@ -246,6 +246,11 @@ public abstract class NetHandler : java.lang.Object
         handle(var1);
     }
 
+    public virtual void HandlePlayerAbilities(PlayerAbilitiesS2CPacket var1)
+    {
+        handle(var1);
+    }
+
     public virtual void onGameStateChange(GameStateChangeS2CPacket var1)
     {
         handle(var1);

@@ -338,6 +338,15 @@ public class ClientNetworkHandler : NetHandler
 
     }
 
+    public override void HandlePlayerAbilities(PlayerAbilitiesS2CPacket packet)
+    {
+        if (mc.player is EntityClientPlayerMP player)
+        {
+            player.CanFly = packet.CanFly;
+            player.IsFlying = packet.IsFlying;
+        }
+    }
+
     public override void onChunkStatusUpdate(ChunkStatusUpdateS2CPacket packet)
     {
         worldClient.UpdateChunk(packet.x, packet.z, packet.load);

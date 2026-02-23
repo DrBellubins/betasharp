@@ -886,8 +886,6 @@ public abstract class EntityPlayer : EntityLiving
 
     public override void travel(float strafe, float forward)
     {
-        Console.WriteLine($"IsFlying: {IsFlying}");
-
         if (IsFlying)
         {
             if (isInWater())
