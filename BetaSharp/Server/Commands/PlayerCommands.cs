@@ -141,4 +141,45 @@ public static class PlayerCommands
         server.playerManager.sendPlayerToDimension(targetPlayer, dim);
         output.SendMessage("Teleported " + targetPlayer.name + " to dimension " + dim);
     }
+
+    public static void Fly(MinecraftServer server, string senderName, string[] args, CommandOutput output)
+    {
+        ServerPlayerEntity targetPlayer = server.playerManager.getPlayer(senderName);
+        if (targetPlayer == null)
+        {
+            output.SendMessage("Could not find your player.");
+            return;
+        }
+
+        bool enable;
+        if (args.Length > 0)
+        {
+            // Accept: on/off/1/0/true/false
+            string arg = args[0].ToLowerInvariant();
+            if (arg == "on" || arg == "1" || arg == "true")
+            {
+                enable = true;
+            }
+            else if (arg == "off" || arg == "0" || arg == "false")
+            {
+                enable = false;
+            }
+            else
+            {
+                output.SendMessage("Usage: fly [on/off]");
+                return;
+            }
+        }
+        else
+        {
+            enable = !targetPlayer.IsFlying; // Toggle
+        }
+
+        targetPlayer.CanFly = enable;
+        targetPlayer.IsFlying = enable;
+
+        output.SendMessage(enable
+            ? "You can now fly! Double-jump to begin flying."
+            : "Flight disabled; gravity returns.");
+    }
 }
