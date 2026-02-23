@@ -151,7 +151,7 @@ public static class PlayerCommands
             return;
         }
 
-        bool enable;
+        bool enable = true;
         if (args.Length > 0)
         {
             // Accept: on/off/1/0/true/false
@@ -172,15 +172,10 @@ public static class PlayerCommands
         }
         else
         {
-            enable = !targetPlayer.CanFly; // Toggle fly permission, not state
+            //enable = !targetPlayer.IsFlying; // Toggle fly permission, not state
         }
 
-        targetPlayer.CanFly = enable;
-
-        if (!enable)
-        {
-            targetPlayer.IsFlying = false; // If permission revoked, disable flight immediately
-        }
+        targetPlayer.IsFlying = true;
 
         output.SendMessage(enable
             ? "You can now fly! Double-jump to begin flying."
