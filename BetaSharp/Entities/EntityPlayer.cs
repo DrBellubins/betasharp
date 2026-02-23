@@ -877,13 +877,28 @@ public abstract class EntityPlayer : EntityLiving
         increaseStat(Stats.Stats.JumpStat, 1);
     }
 
-    public override void travel(float x, float z)
+    public override void travel(float strafe, float forward)
     {
-        double var3 = base.x;
-        double var5 = y;
-        double var7 = base.z;
-        base.travel(x, z);
-        updateMovementStat(base.x - var3, y - var5, base.z - var7);
+        double originalX = x;
+        double originalY = y;
+        double originalZ = z;
+
+        // Custom speed multiplier, e.g., 0.13F for 30% faster walk speed
+        float customSpeed = 0.13F;
+        float friction = 0.91F;
+        
+        if (onGround)
+        {
+            int groundBlockId = world.getBlockId(MathHelper.Floor(x), MathHelper.Floor(boundingBox.minY) - 1, MathHelper.Floor(z));
+            if (groundBlockId > 0)
+            {
+                friction = Block.Blocks[groundBlockId].slipperiness * 0.91F;
+            }
+        }
+        float movementFactor = 0.16277136F / (friction * friction * friction);
+        moveNonSolid(strafe, forward, onGround ? customSpeed * movementFactor : 0.02F);
+
+        updateMovementStat(x - originalX, y - originalY, z - originalZ);
     }
 
     private void updateMovementStat(double x, double y, double z)

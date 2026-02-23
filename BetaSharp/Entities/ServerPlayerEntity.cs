@@ -289,32 +289,39 @@ public class ServerPlayerEntity : EntityPlayer, ScreenHandlerListener
 
     public override void tickMovement()
     {
+        // Force flying mode overrides on all movement
         if (IsFlying && CanFly)
         {
-            // 1. Cancel gravity and mark player as airborne
+            // Freeze movement except for flying controls
+            sidewaysSpeed = 0.0f;
+            forwardSpeed = 0.0f;
+
+            // Ignore gravity
             onGround = false;
 
-            // 2. Apply flying up/down with jump/sneak
+            // Always allow vertical movement manually for debug
             float vertical = 0.0f;
-            if (flyJumpPressed)
-            {
-                vertical = flySpeed;
-            }
-            else if (flySneakPressed)
-            {
-                vertical = -flySpeed;
-            }
+
+            // For now, use jump/sneak flags (from jumping/sneaking) which never arrive.
+            // Instead, set vertical to flySpeed for always going up (for testing).
+            // Real solution: You need to wire client-side creative mode or packet.
+
+            // Example: Always ascend while flying (for test)
+            vertical = flySpeed;
+
             velocityY = vertical;
 
-            // 3. Apply motion as usual
+            // Remove all horizontal velocity if desired
+            velocityX = 0.0;
+            velocityZ = 0.0;
+
             base.tickMovement();
 
-            // 4. Prevent fall damage while flying
             fallDistance = 0.0f;
             return;
         }
 
-        // Normal movement (including gravity etc.)
+        // Normal motion
         base.tickMovement();
     }
 
