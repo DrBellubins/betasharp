@@ -31,12 +31,6 @@ public class ServerPlayerEntity : EntityPlayer, ScreenHandlerListener
     private int screenHandlerSyncId;
     public bool skipPacketSlotUpdates;
 
-    public bool CanFly { get; set; }
-    public bool IsFlying { get; set; }
-    private float flySpeed = 0.45f;
-    private bool flyJumpPressed;
-    private bool flySneakPressed;
-
     public ServerPlayerEntity(MinecraftServer server, World world, String name, ServerPlayerInteractionManager interactionManager) : base(world)
     {
         interactionManager.player = this;
@@ -289,51 +283,7 @@ public class ServerPlayerEntity : EntityPlayer, ScreenHandlerListener
 
     public override void tickMovement()
     {
-        // Force flying mode overrides on all movement
-        if (IsFlying && CanFly)
-        {
-            // Freeze movement except for flying controls
-            sidewaysSpeed = 0.0f;
-            forwardSpeed = 0.0f;
-
-            // Ignore gravity
-            onGround = false;
-
-            // Always allow vertical movement manually for debug
-            float vertical = 0.0f;
-
-            // For now, use jump/sneak flags (from jumping/sneaking) which never arrive.
-            // Instead, set vertical to flySpeed for always going up (for testing).
-            // Real solution: You need to wire client-side creative mode or packet.
-
-            // Example: Always ascend while flying (for test)
-            vertical = flySpeed;
-
-            velocityY = vertical;
-
-            // Remove all horizontal velocity if desired
-            velocityX = 0.0;
-            velocityZ = 0.0;
-
-            base.tickMovement();
-
-            fallDistance = 0.0f;
-            return;
-        }
-
-        // Normal motion
         base.tickMovement();
-    }
-
-    protected override void onLanding(float fallDistance)
-    {
-        if (IsFlying && CanFly)
-        {
-            this.fallDistance = 0.0f;
-            return;
-        }
-
-        base.onLanding(fallDistance);
     }
 
     public override void sendPickup(Entity item, int count)
@@ -531,9 +481,6 @@ public class ServerPlayerEntity : EntityPlayer, ScreenHandlerListener
         setSneaking(sneaking);
         this.pitch = pitch;
         this.yaw = yaw;
-
-        flyJumpPressed = jumping;
-        flySneakPressed = sneaking;
     }
 
 

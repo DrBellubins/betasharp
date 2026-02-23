@@ -47,6 +47,13 @@ public abstract class EntityPlayer : EntityLiving
     private int damageSpill;
     public EntityFish fishHook = null;
 
+    public bool CanFly { get; set; }
+    public bool IsFlying { get; set; }
+
+    private float flySpeed = 0.45f;
+    private bool flyJumpPressed;
+    private bool flySneakPressed;
+
     public EntityPlayer(World world) : base(world)
     {
         inventory = new InventoryPlayer(this);
@@ -879,26 +886,78 @@ public abstract class EntityPlayer : EntityLiving
 
     public override void travel(float strafe, float forward)
     {
-        double originalX = x;
-        double originalY = y;
-        double originalZ = z;
+        //Console.WriteLine($"Test1 {IsFlying}");
 
-        // Custom speed multiplier, e.g., 0.13F for 30% faster walk speed
-        float customSpeed = 0.13F;
-        float friction = 0.91F;
-        
-        if (onGround)
+        if (IsFlying)
         {
-            int groundBlockId = world.getBlockId(MathHelper.Floor(x), MathHelper.Floor(boundingBox.minY) - 1, MathHelper.Floor(z));
-            if (groundBlockId > 0)
+            if (isInWater())
             {
-                friction = Block.Blocks[groundBlockId].slipperiness * 0.91F;
+                moveNonSolid(strafe, forward, 0.02F);
+                move(velocityX, velocityY, velocityZ);
+                velocityX *= (double)0.8F;
+                velocityY *= (double)0.8F;
+                velocityZ *= (double)0.8F;
             }
-        }
-        float movementFactor = 0.16277136F / (friction * friction * friction);
-        moveNonSolid(strafe, forward, onGround ? customSpeed * movementFactor : 0.02F);
+            else if (isTouchingLava())
+            {
+                moveNonSolid(strafe, forward, 0.02F);
+                move(velocityX, velocityY, velocityZ);
+                velocityX *= 0.5D;
+                velocityY *= 0.5D;
+                velocityZ *= 0.5D;
+            }
+            else
+            {
+                float friction = 0.91F;
+                if (onGround)
+                {
+                    friction = 546.0F * 0.1F * 0.1F * 0.1F;
+                    int groundBlockId = world.getBlockId(MathHelper.Floor(x), MathHelper.Floor(boundingBox.minY) - 1, MathHelper.Floor(z));
+                    if (groundBlockId > 0)
+                    {
+                        friction = Block.Blocks[groundBlockId].slipperiness * 0.91F;
+                    }
+                }
 
-        updateMovementStat(x - originalX, y - originalY, z - originalZ);
+                float accelerationFactor = 0.16277136F / (friction * friction * friction);
+                moveNonSolid(strafe, forward, onGround ? 0.1F * accelerationFactor : 0.02F);
+                friction = 0.91F;
+                if (onGround)
+                {
+                    friction = 546.0F * 0.1F * 0.1F * 0.1F;
+                    int groundBlockId = world.getBlockId(MathHelper.Floor(x), MathHelper.Floor(boundingBox.minY) - 1, MathHelper.Floor(z));
+                    if (groundBlockId > 0)
+                    {
+                        friction = Block.Blocks[groundBlockId].slipperiness * 0.91F;
+                    }
+                }
+
+                move(velocityX, velocityY, velocityZ);
+                velocityX *= (double)friction;
+                velocityY *= (double)friction;
+                velocityZ *= (double)friction;
+            }
+
+            lastWalkAnimationSpeed = walkAnimationSpeed;
+            double dx = x - prevX;
+            double dy = z - prevZ;
+            float distanceMoved = MathHelper.Sqrt(dx * dx + dy * dy) * 4.0F;
+            if (distanceMoved > 1.0F)
+            {
+                distanceMoved = 1.0F;
+            }
+
+            walkAnimationSpeed += (distanceMoved - walkAnimationSpeed) * 0.4F;
+            animationPhase += walkAnimationSpeed;
+        }
+        else
+        {
+            double originalX = base.x;
+            double originalY = y;
+            double originalZ = base.z;
+            base.travel(strafe, forward);
+            updateMovementStat(base.x - originalX, y - originalY, base.z - originalZ);
+        }
     }
 
     private void updateMovementStat(double x, double y, double z)
@@ -988,6 +1047,12 @@ public abstract class EntityPlayer : EntityLiving
 
     protected override void onLanding(float fallDistance)
     {
+        if (IsFlying && CanFly)
+        {
+            this.fallDistance = 0.0f;
+            return;
+        }
+
         if (fallDistance >= 2.0F)
         {
             increaseStat(Stats.Stats.DistanceFallenStat, (int)java.lang.Math.round((double)fallDistance * 100.0D));
