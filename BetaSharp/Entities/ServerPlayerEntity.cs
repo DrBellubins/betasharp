@@ -31,6 +31,11 @@ public class ServerPlayerEntity : EntityPlayer, ScreenHandlerListener
     private int screenHandlerSyncId;
     public bool skipPacketSlotUpdates;
 
+    public bool CanFly { get; set; }
+    public bool IsFlying { get; set; }
+    private float flySpeed = 0.45f;
+    private bool flyJumpPressed;
+    private bool flySneakPressed;
 
     public ServerPlayerEntity(MinecraftServer server, World world, String name, ServerPlayerInteractionManager interactionManager) : base(world)
     {
@@ -282,12 +287,47 @@ public class ServerPlayerEntity : EntityPlayer, ScreenHandlerListener
         }
     }
 
-
     public override void tickMovement()
     {
+        if (IsFlying && CanFly)
+        {
+            // 1. Cancel gravity and mark player as airborne
+            onGround = false;
+
+            // 2. Apply flying up/down with jump/sneak
+            float vertical = 0.0f;
+            if (flyJumpPressed)
+            {
+                vertical = flySpeed;
+            }
+            else if (flySneakPressed)
+            {
+                vertical = -flySpeed;
+            }
+            velocityY = vertical;
+
+            // 3. Apply motion as usual
+            base.tickMovement();
+
+            // 4. Prevent fall damage while flying
+            fallDistance = 0.0f;
+            return;
+        }
+
+        // Normal movement (including gravity etc.)
         base.tickMovement();
     }
 
+    protected override void onLanding(float fallDistance)
+    {
+        if (IsFlying && CanFly)
+        {
+            this.fallDistance = 0.0f;
+            return;
+        }
+
+        base.onLanding(fallDistance);
+    }
 
     public override void sendPickup(Entity item, int count)
     {
@@ -484,6 +524,9 @@ public class ServerPlayerEntity : EntityPlayer, ScreenHandlerListener
         setSneaking(sneaking);
         this.pitch = pitch;
         this.yaw = yaw;
+
+        flyJumpPressed = jumping;
+        flySneakPressed = sneaking;
     }
 
 
