@@ -21,8 +21,8 @@ public interface IServerConfiguration
     int GetSpawnRegionSize(int fallback);
     void Save();
 
-    bool GetProperty(string property, bool fallback);
-    int GetProperty(string property, int fallback);
-    string GetProperty(string property, string fallback);
+    bool GetPropertyBool(string property, bool fallback);
+    int GetPropertyInt(string property, int fallback);
+    string GetPropertyString(string property, string fallback);
     void SetProperty(string property, bool value);
 }

@@ -62,17 +62,17 @@ internal class InternalServerConfiguration : IServerConfiguration
         return false;
     }
 
-    public bool GetProperty(string property, bool fallback)
+    public bool GetPropertyBool(string property, bool fallback)
     {
         return false;
     }
 
-    public int GetProperty(string property, int fallback)
+    public int GetPropertyInt(string property, int fallback)
     {
         return -1;
     }
 
-    public string GetProperty(string property, string fallback)
+    public string GetPropertyString(string property, string fallback)
     {
         return string.Empty;
     }

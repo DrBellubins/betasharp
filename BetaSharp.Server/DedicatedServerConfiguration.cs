@@ -24,24 +24,19 @@ internal class DedicatedServerConfiguration : IServerConfiguration
             catch (Exception ex)
             {
                 logger.LogWarning(ex, "Failed to load " + file);
-                generateNew();
+                GenerateNew();
             }
         }
         else
         {
             logger.LogWarning(file + " does not exist");
-            generateNew();
+            GenerateNew();
         }
     }
 
-    public void generateNew()
+    public void GenerateNew()
     {
         logger.LogInformation("Generating new properties file");
-        save();
-    }
-
-    public void save()
-    {
         Save();
     }
 
@@ -54,36 +49,27 @@ internal class DedicatedServerConfiguration : IServerConfiguration
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Failed to save " + propertiesFile);
-            generateNew();
+            GenerateNew();
         }
     }
 
-    public string getProperty(string property, string fallback)
-    {
-        return GetProperty(property, fallback);
-    }
 
-    public string GetProperty(string property, string fallback)
+    public string GetPropertyString(string property, string fallback)
     {
         if (!properties.containsKey(property))
         {
             properties.setProperty(property, fallback);
-            save();
+            Save();
         }
 
         return properties.getProperty(property, fallback);
     }
 
-    public int getProperty(string property, int fallback)
-    {
-        return GetProperty(property, fallback);
-    }
-
-    public int GetProperty(string property, int fallback)
+    public int GetPropertyInt(string property, int fallback)
     {
         try
         {
-            return Integer.parseInt(getProperty(property, "" + fallback));
+            return Integer.parseInt(GetPropertyString(property, "" + fallback));
         }
         catch (Exception)
         {
@@ -92,50 +78,40 @@ internal class DedicatedServerConfiguration : IServerConfiguration
         }
     }
 
-    public bool getProperty(string property, bool fallback)
-    {
-        return GetProperty(property, fallback);
-    }
-
-    public bool GetProperty(string property, bool fallback)
+    public bool GetPropertyBool(string property, bool fallback)
     {
         try
         {
-            return java.lang.Boolean.parseBoolean(getProperty(property, "" + fallback));
+            return java.lang.Boolean.parseBoolean(GetPropertyString(property, "" + fallback));
         }
         catch (Exception)
         {
             properties.setProperty(property, "" + fallback);
             return fallback;
         }
-    }
-
-    public void setProperty(string property, bool value)
-    {
-        SetProperty(property, value);
     }
 
     public void SetProperty(string property, bool value)
     {
         properties.setProperty(property, "" + value);
-        save();
+        Save();
     }
 
-    public string GetServerIp(string fallback) => GetProperty("server-ip", fallback);
-    public int GetServerPort(int fallback) => GetProperty("server-port", fallback);
-    public bool GetDualStack(bool fallback) => GetProperty("dual-stack", fallback);
-    public bool GetOnlineMode(bool fallback) => GetProperty("online-mode", fallback);
-    public bool GetSpawnAnimals(bool fallback) => GetProperty("spawn-animals", fallback);
-    public bool GetPvpEnabled(bool fallback) => GetProperty("pvp", fallback);
-    public bool GetAllowFlight(bool fallback) => GetProperty("allow-flight", fallback);
-    public string GetLevelName(string fallback) => GetProperty("level-name", fallback);
-    public string GetLevelType(string fallback) => GetProperty("level-type", fallback);
-    public string GetLevelSeed(string fallback) => GetProperty("level-seed", fallback);
-    public string GetLevelOptions(string fallback) => GetProperty("generator-settings", fallback);
-    public bool GetSpawnMonsters(bool fallback) => GetProperty("spawn-monsters", fallback);
-    public bool GetAllowNether(bool fallback) => GetProperty("allow-nether", fallback);
-    public int GetMaxPlayers(int fallback) => GetProperty("max-players", fallback);
-    public int GetViewDistance(int fallback) => GetProperty("view-distance", fallback);
-    public bool GetWhiteList(bool fallback) => GetProperty("white-list", fallback);
-    public int GetSpawnRegionSize(int fallback) => GetProperty("spawn-region-size", fallback);
+    public string GetServerIp(string fallback) => GetPropertyString("server-ip", fallback);
+    public int GetServerPort(int fallback) => GetPropertyInt("server-port", fallback);
+    public bool GetDualStack(bool fallback) => GetPropertyBool("dual-stack", fallback);
+    public bool GetOnlineMode(bool fallback) => GetPropertyBool("online-mode", fallback);
+    public bool GetSpawnAnimals(bool fallback) => GetPropertyBool("spawn-animals", fallback);
+    public bool GetPvpEnabled(bool fallback) => GetPropertyBool("pvp", fallback);
+    public bool GetAllowFlight(bool fallback) => GetPropertyBool("allow-flight", fallback);
+    public string GetLevelName(string fallback) => GetPropertyString("level-name", fallback);
+    public string GetLevelType(string fallback) => GetPropertyString("level-type", fallback);
+    public string GetLevelSeed(string fallback) => GetPropertyString("level-seed", fallback);
+    public string GetLevelOptions(string fallback) => GetPropertyString("generator-settings", fallback);
+    public bool GetSpawnMonsters(bool fallback) => GetPropertyBool("spawn-monsters", fallback);
+    public bool GetAllowNether(bool fallback) => GetPropertyBool("allow-nether", fallback);
+    public int GetMaxPlayers(int fallback) => GetPropertyInt("max-players", fallback);
+    public int GetViewDistance(int fallback) => GetPropertyInt("view-distance", fallback);
+    public bool GetWhiteList(bool fallback) => GetPropertyBool("white-list", fallback);
+    public int GetSpawnRegionSize(int fallback) => GetPropertyInt("spawn-region-size", fallback);
 }
