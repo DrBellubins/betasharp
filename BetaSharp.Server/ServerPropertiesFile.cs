@@ -102,8 +102,26 @@ namespace BetaSharp.Server
                 }
             }
 
+            var written = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string key in orderedKeys)
+            {
+                if (_values.TryGetValue(key, out string? value))
+                {
+                    writer.Write(key);
+                    writer.Write('=');
+                    writer.WriteLine(value ?? string.Empty);
+                    written.Add(key);
+                }
+            }
+
             foreach (var pair in _values)
             {
+                if (written.Contains(pair.Key))
+                {
+                    continue;
+                }
+
                 writer.Write(pair.Key);
                 writer.Write('=');
                 writer.WriteLine(pair.Value ?? string.Empty);
@@ -176,5 +194,26 @@ namespace BetaSharp.Server
         {
             _values[key] = value.ToString();
         }
+
+        private static readonly string[] orderedKeys =
+        {
+            "level-name",
+            "allow-nether",
+            "generator-settings",
+            "view-distance",
+            "spawn-monsters",
+            "online-mode",
+            "dual-stack",
+            "spawn-animals",
+            "max-players",
+            "server-ip",
+            "pvp",
+            "level-seed",
+            "server-port",
+            "allow-flight",
+            "level-type",
+            "white-list",
+            "spawn-region-size"
+        };
     }
 }
