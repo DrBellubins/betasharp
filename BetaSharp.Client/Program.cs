@@ -7,7 +7,7 @@ AssetManager.Initialize(AssetManager.AssetProfile.Full);
 
 try
 {
-    BetaSharp.Client.BetaSharp.Startup(args);
+    BetaSharp.Client.BetaSharp.Startup(["Player", "offline"]);
 }
 catch (Exception exception)
 {

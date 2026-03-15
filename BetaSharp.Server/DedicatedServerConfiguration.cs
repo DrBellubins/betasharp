@@ -1,6 +1,3 @@
-using java.io;
-using java.lang;
-using java.util;
 using Microsoft.Extensions.Logging;
 using Exception = System.Exception;
 using File = System.IO.File;
@@ -10,7 +7,6 @@ namespace BetaSharp.Server;
 internal class DedicatedServerConfiguration : IServerConfiguration
 {
     public static ILogger<DedicatedServerConfiguration> logger = Log.Instance.For<DedicatedServerConfiguration>();
-    //private readonly Properties properties = new();
     private readonly ServerPropertiesFile properties = new();
     private readonly string propertiesFileName;
 
