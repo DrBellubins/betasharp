@@ -76,7 +76,7 @@ internal class DedicatedServer(IServerConfiguration config) : BetaSharpServer(co
 
         try
         {
-            DedicatedServerConfiguration config = new(new java.io.File("server.properties"));
+            DedicatedServerConfiguration config = new("server.properties");
             DedicatedServer server = new(config);
 
             new RunServerThread(server, "Server thread").start();

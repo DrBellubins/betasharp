@@ -3,38 +3,41 @@ using java.lang;
 using java.util;
 using Microsoft.Extensions.Logging;
 using Exception = System.Exception;
+using File = System.IO.File;
 
 namespace BetaSharp.Server;
 
 internal class DedicatedServerConfiguration : IServerConfiguration
 {
     public static ILogger<DedicatedServerConfiguration> logger = Log.Instance.For<DedicatedServerConfiguration>();
-    private readonly Properties properties = new();
-    private readonly java.io.File propertiesFile;
+    //private readonly Properties properties = new();
+    private readonly ServerPropertiesFile properties = new();
+    private readonly string propertiesFileName;
 
-    public DedicatedServerConfiguration(java.io.File file)
+    public DedicatedServerConfiguration(string fileName)
     {
-        propertiesFile = file;
-        if (file.exists())
+        propertiesFileName = fileName;
+
+        if (File.Exists(propertiesFileName))
         {
             try
             {
-                properties.load(new FileInputStream(file));
+                properties = ServerPropertiesFile.Load(propertiesFileName);
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Failed to load " + file);
+                logger.LogWarning(ex, "Failed to load " + propertiesFileName);
                 GenerateNew();
             }
         }
         else
         {
-            logger.LogWarning(file + " does not exist");
+            logger.LogWarning(propertiesFileName + " does not exist");
             GenerateNew();
         }
     }
 
-    public void GenerateNew()
+    private void GenerateNew()
     {
         logger.LogInformation("Generating new properties file");
         Save();
@@ -44,11 +47,11 @@ internal class DedicatedServerConfiguration : IServerConfiguration
     {
         try
         {
-            properties.store(new FileOutputStream(propertiesFile), "BetaSharp server properties");
+            properties.Save(propertiesFileName);
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Failed to save " + propertiesFile);
+            logger.LogWarning(ex, "Failed to save " + propertiesFileName);
             GenerateNew();
         }
     }
@@ -56,24 +59,24 @@ internal class DedicatedServerConfiguration : IServerConfiguration
 
     public string GetPropertyString(string property, string fallback)
     {
-        if (!properties.containsKey(property))
+        if (!properties.ContainsKey(property))
         {
-            properties.setProperty(property, fallback);
+            properties.SetString(property, fallback);
             Save();
         }
 
-        return properties.getProperty(property, fallback);
+        return properties.GetString(property, fallback);
     }
 
     public int GetPropertyInt(string property, int fallback)
     {
         try
         {
-            return Integer.parseInt(GetPropertyString(property, "" + fallback));
+            return int.Parse(GetPropertyString(property, "" + fallback));
         }
         catch (Exception)
         {
-            properties.setProperty(property, "" + fallback);
+            properties.SetInt(property, fallback);
             return fallback;
         }
     }
@@ -82,18 +85,18 @@ internal class DedicatedServerConfiguration : IServerConfiguration
     {
         try
         {
-            return java.lang.Boolean.parseBoolean(GetPropertyString(property, "" + fallback));
+            return bool.Parse(GetPropertyString(property, "" + fallback));
         }
         catch (Exception)
         {
-            properties.setProperty(property, "" + fallback);
+            properties.SetBool(property, fallback);
             return fallback;
         }
     }
 
     public void SetProperty(string property, bool value)
     {
-        properties.setProperty(property, "" + value);
+        properties.SetBool(property, value);
         Save();
     }
 
